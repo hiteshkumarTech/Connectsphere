@@ -8,6 +8,7 @@ import Brand from '../Brand.jsx';
 import Avatar from '../ui/Avatar.jsx';
 import Button from '../ui/Button.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
+import UserMenu from './UserMenu.jsx';
 import NotificationBell from '../NotificationBell.jsx';
 
 export default function AppLayout() {
@@ -109,6 +110,7 @@ export default function AppLayout() {
         <div className="flex items-center">
           <NotificationBell />
           <ThemeToggle />
+          <UserMenu placement="down" />
         </div>
       </header>
 
