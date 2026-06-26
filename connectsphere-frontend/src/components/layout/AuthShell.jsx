@@ -1,4 +1,4 @@
-import { Sparkles, MessageCircle, Zap } from 'lucide-react';
+import { Sparkles, MessageCircle, Zap, Orbit } from 'lucide-react';
 import Brand from '../Brand.jsx';
 
 const HIGHLIGHTS = [
@@ -9,40 +9,70 @@ const HIGHLIGHTS = [
 
 export default function AuthShell({ children }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Brand / thesis panel */}
-      <div className="ai-gradient relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
-        <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-black/10 blur-3xl" />
-        <div className="relative">
-          <Brand />
+    <div className="relative grid min-h-screen overflow-hidden bg-slate-950 lg:grid-cols-2">
+      {/* Cinematic animated backdrop — spans the whole screen */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="aurora-blob aurora-1" />
+        <div className="aurora-blob aurora-2" />
+        <div className="aurora-blob aurora-3" />
+        <div className="auth-grid absolute inset-0" />
+        <div className="absolute inset-0 bg-slate-950/40" />
+        {/* floating glow particles */}
+        <span className="float-a absolute left-[12%] top-[22%] h-2 w-2 rounded-full bg-brand-300/70 shadow-[0_0_12px_2px_rgba(139,125,255,0.7)]" />
+        <span className="float-b absolute left-[28%] top-[68%] h-1.5 w-1.5 rounded-full bg-cyan-300/70 shadow-[0_0_12px_2px_rgba(103,232,249,0.6)]" />
+        <span className="float-c absolute right-[18%] top-[30%] h-2 w-2 rounded-full bg-coral-400/70 shadow-[0_0_12px_2px_rgba(255,138,115,0.6)]" />
+        <span className="float-b absolute right-[34%] bottom-[20%] h-1.5 w-1.5 rounded-full bg-white/60 shadow-[0_0_10px_2px_rgba(255,255,255,0.5)]" />
+      </div>
+
+      {/* LEFT — hero (desktop) */}
+      <div className="relative z-10 hidden flex-col justify-between p-12 text-white lg:flex">
+        <div className="flex items-center gap-3">
+          <div className="relative h-11 w-11">
+            <span className="ai-gradient glow-pulse flex h-11 w-11 items-center justify-center rounded-2xl text-white">
+              <Orbit size={22} strokeWidth={2.2} />
+            </span>
+            <span className="orbit-ring absolute inset-[-6px] rounded-full">
+              <span className="orbit-dot" />
+            </span>
+          </div>
+          <span className="font-display text-xl font-bold tracking-tight">
+            Connect<span className="text-brand-300">Sphere</span>
+          </span>
         </div>
-        <div className="relative max-w-md">
-          <h1 className="font-display text-4xl font-bold leading-tight">
-            Connect, create, converse.
+
+        <div className="max-w-lg">
+          <h1 className="font-display text-6xl font-bold leading-[1.03]">
+            <span className="rise rise-1 block">Connect,</span>
+            <span className="rise rise-2 shimmer-text block">create,</span>
+            <span className="rise rise-3 block">converse.</span>
           </h1>
-          <p className="mt-3 text-white/80">
+          <p className="rise rise-4 mt-5 max-w-md text-lg leading-relaxed text-white/70">
             The social home for builders and creators — with AI woven in and
             conversations that happen live.
           </p>
-          <ul className="mt-8 space-y-3">
-            {HIGHLIGHTS.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-center gap-3 text-sm text-white/90">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15">
-                  <Icon size={16} />
+          <ul className="mt-9 space-y-3">
+            {HIGHLIGHTS.map(({ icon: Icon, text }, i) => (
+              <li
+                key={text}
+                className="rise flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90 backdrop-blur-md"
+                style={{ animationDelay: `${0.5 + i * 0.13}s` }}
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white">
+                  <Icon size={17} />
                 </span>
                 {text}
               </li>
             ))}
           </ul>
         </div>
-        <p className="relative text-xs text-white/60">Built for creators. Powered by AI.</p>
+
+        <p className="text-xs text-white/45">Built for creators. Powered by AI.</p>
       </div>
 
-      {/* Form panel */}
-      <div className="flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden">
+      {/* RIGHT — form (frosted glass, stays clean + usable) */}
+      <div className="relative z-10 flex items-center justify-center p-5 sm:p-10">
+        <div className="rise rise-2 w-full max-w-sm rounded-3xl border border-white/15 bg-white/85 p-7 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70 sm:p-8">
+          <div className="mb-7 flex justify-center lg:hidden">
             <Brand />
           </div>
           {children}
