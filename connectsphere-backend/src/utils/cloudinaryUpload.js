@@ -30,4 +30,15 @@ function deleteImage(publicId) {
   return cloudinary.uploader.destroy(publicId).catch(() => {});
 }
 
-module.exports = { uploadBuffer, deleteImage };
+/** Removes a video asset (resource_type must be 'video' for videos). */
+function deleteVideo(publicId) {
+  if (!publicId || !config.cloudinary.configured) return Promise.resolve();
+  return cloudinary.uploader.destroy(publicId, { resource_type: 'video' }).catch(() => {});
+}
+
+/** Signs upload params with the API secret so the browser can upload directly. */
+function signParams(paramsToSign) {
+  return cloudinary.utils.api_sign_request(paramsToSign, config.cloudinary.apiSecret);
+}
+
+module.exports = { uploadBuffer, deleteImage, deleteVideo, signParams };

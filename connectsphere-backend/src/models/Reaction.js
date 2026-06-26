@@ -13,7 +13,7 @@ const REACTION_EMOJI = {
 const reactionSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    targetType: { type: String, enum: ['post', 'comment'], required: true },
+    targetType: { type: String, enum: ['post', 'comment', 'reel'], required: true },
     target: { type: mongoose.Schema.Types.ObjectId, required: true },
     type: { type: String, enum: REACTION_TYPES, default: 'like' },
   },

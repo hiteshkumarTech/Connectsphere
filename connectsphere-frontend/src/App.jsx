@@ -7,6 +7,7 @@ import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
 import FeedPage from './pages/FeedPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
+import ReelsPage from './pages/ReelsPage.jsx';
 import HashtagPage from './pages/HashtagPage.jsx';
 import MessagesPage from './pages/MessagesPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
@@ -32,6 +33,7 @@ export default function App() {
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/" element={<FeedPage />} />
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/reels" element={<ReelsPage />} />
         <Route path="/search" element={<Navigate to="/explore" replace />} />
         <Route path="/tag/:tag" element={<HashtagPage />} />
         <Route path="/messages" element={<MessagesPage />} />

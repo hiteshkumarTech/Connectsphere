@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
-import { ImagePlus, X, Sparkles, Globe, Users, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ImagePlus, X, Sparkles, Globe, Users, Loader2, Clapperboard } from 'lucide-react';
 import { api, apiError } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import Avatar from '../ui/Avatar.jsx';
 import Button from '../ui/Button.jsx';
+import CreateReelModal from '../reel/CreateReelModal.jsx';
 
 const TONES = ['casual', 'professional', 'viral', 'witty', 'inspirational'];
 const MAX = 5000;
@@ -13,12 +15,14 @@ export default function Composer({ onCreated }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const fileRef = useRef(null);
+  const navigate = useNavigate();
 
   const [content, setContent] = useState('');
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [visibility, setVisibility] = useState('public');
   const [posting, setPosting] = useState(false);
+  const [reelOpen, setReelOpen] = useState(false);
 
   // AI assist
   const [aiOpen, setAiOpen] = useState(false);
@@ -102,6 +106,7 @@ export default function Composer({ onCreated }) {
   };
 
   return (
+    <>
     <div className="border-b border-slate-100 bg-white px-4 py-4 dark:border-slate-800/80 dark:bg-slate-950 sm:rounded-2xl sm:border sm:shadow-card sm:dark:border-slate-800">
       <div className="flex gap-3">
         <Avatar src={user?.avatar} name={user?.name} size="md" />
@@ -219,6 +224,13 @@ export default function Composer({ onCreated }) {
                 <Sparkles size={17} /> AI
               </button>
               <button
+                onClick={() => setReelOpen(true)}
+                aria-label="Create reel"
+                className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-brand-500 transition hover:bg-brand-50 dark:hover:bg-brand-900/20"
+              >
+                <Clapperboard size={17} /> Reel
+              </button>
+              <button
                 onClick={() => setVisibility((v) => (v === 'public' ? 'followers' : 'public'))}
                 className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               >
@@ -239,5 +251,15 @@ export default function Composer({ onCreated }) {
         </div>
       </div>
     </div>
+
+      <CreateReelModal
+        open={reelOpen}
+        onClose={() => setReelOpen(false)}
+        onCreated={() => {
+          setReelOpen(false);
+          navigate('/reels');
+        }}
+      />
+    </>
   );
 }
