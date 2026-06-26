@@ -1,0 +1,50 @@
+# Render Blueprint — deploys the ConnectSphere API as a free web service.
+# In Render: New > Blueprint > connect this repo. It reads this file, generates
+# the JWT secrets for you, and prompts for the values marked `sync: false`.
+services:
+  - type: web
+    name: connectsphere-api
+    runtime: node
+    plan: free
+    # If the backend is NOT at the repo root (monorepo), set rootDir to its folder.
+    # rootDir: connectsphere-backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # PORT is provided by Render automatically — no need to set it.
+
+      # --- Secrets / values to fill in the Render dashboard ---
+      - key: MONGODB_URI
+        sync: false
+      - key: CLIENT_URL # your deployed frontend origin, e.g. https://connectsphere.vercel.app
+        sync: false
+
+      # --- Auto-generated strong secrets ---
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES
+        value: 7d
+
+      # --- Optional: image uploads (leave unset to disable) ---
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # --- Optional: AI caption assist + moderation (any OpenAI-compatible key) ---
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: AI_MODEL
+        value: gpt-4o-mini
