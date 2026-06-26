@@ -7,7 +7,6 @@ import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
 import FeedPage from './pages/FeedPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
-import SearchPage from './pages/SearchPage.jsx';
 import HashtagPage from './pages/HashtagPage.jsx';
 import MessagesPage from './pages/MessagesPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
@@ -33,7 +32,7 @@ export default function App() {
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/" element={<FeedPage />} />
         <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/search" element={<SearchPage />} />
+        <Route path="/search" element={<Navigate to="/explore" replace />} />
         <Route path="/tag/:tag" element={<HashtagPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/messages/:conversationId" element={<MessagesPage />} />

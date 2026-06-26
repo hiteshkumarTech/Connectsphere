@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Search, MessageCircle, User, Plus, LogOut } from 'lucide-react';
+import { Home, Compass, MessageCircle, User, Plus, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { api } from '../../lib/api';
 import { useSocketEvent } from '../../hooks/useSocketEvent';
@@ -36,7 +36,6 @@ export default function AppLayout() {
   const nav = [
     { to: '/', label: 'Home', icon: Home, end: true },
     { to: '/explore', label: 'Explore', icon: Compass },
-    { to: '/search', label: 'Search', icon: Search },
     { to: '/messages', label: 'Messages', icon: MessageCircle, badge: unread },
     { to: `/u/${user?.username}`, label: 'Profile', icon: User },
   ];
