@@ -1,15 +1,13 @@
-﻿[build]
+[build]
   command = "npm run build"
   publish = "dist"
 
-# Proxy /api to the Render backend (keeps the auth cookie first-party)
 [[redirects]]
   from = "/api/*"
   to = "https://connectsphere-z5hy.onrender.com/api/:splat"
   status = 200
   force = true
 
-# SPA fallback so client-side routes don't 404
 [[redirects]]
   from = "/*"
   to = "/index.html"
