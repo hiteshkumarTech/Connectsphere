@@ -3,3 +3,8 @@
 *.zip
 connectsphere-reels/
 connectsphere-bookmarks/
+
+# Ignore any zip-extraction wrapper folder, but never the real project folders
+/connectsphere-*/
+!/connectsphere-backend/
+!/connectsphere-frontend/
