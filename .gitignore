@@ -8,3 +8,4 @@ connectsphere-bookmarks/
 /connectsphere-*/
 !/connectsphere-backend/
 !/connectsphere-frontend/
+!/connectsphere-mobile/
