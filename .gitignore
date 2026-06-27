@@ -1,0 +1,5 @@
+
+# zip deliveries + accidental extraction wrappers
+*.zip
+connectsphere-reels/
+connectsphere-bookmarks/
