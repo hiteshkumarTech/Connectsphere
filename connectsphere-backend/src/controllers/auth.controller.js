@@ -42,7 +42,13 @@ async function issueSession(user, req, res) {
   if (user.sessions.length > 10) user.sessions = user.sessions.slice(-10);
   await user.save();
   res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions());
-  return accessToken;
+  return { accessToken, refreshToken };
+}
+
+// Native apps can't use the httpOnly refresh cookie: they send this header and
+// instead receive / submit the refresh token in the JSON body. Web is unchanged.
+function isMobile(req) {
+  return req.headers['x-client-type'] === 'mobile';
 }
 
 const register = asyncHandler(async (req, res) => {
@@ -66,11 +72,11 @@ const register = asyncHandler(async (req, res) => {
     html: `<p>Welcome to ConnectSphere!</p><p><a href="${verifyUrl}">Verify your email</a></p>`,
   });
 
-  const accessToken = await issueSession(user, req, res);
+  const { accessToken, refreshToken } = await issueSession(user, req, res);
   res.status(201).json({
     success: true,
     message: 'Account created. Check your email to verify your address.',
-    data: { user, accessToken },
+    data: { user, accessToken, ...(isMobile(req) ? { refreshToken } : {}) },
   });
 });
 
@@ -83,12 +89,16 @@ const login = asyncHandler(async (req, res) => {
   if (user.isBanned) throw ApiError.forbidden('This account has been banned');
 
   user.lastSeen = new Date();
-  const accessToken = await issueSession(user, req, res);
-  res.json({ success: true, message: 'Logged in', data: { user, accessToken } });
+  const { accessToken, refreshToken } = await issueSession(user, req, res);
+  res.json({
+    success: true,
+    message: 'Logged in',
+    data: { user, accessToken, ...(isMobile(req) ? { refreshToken } : {}) },
+  });
 });
 
 const refresh = asyncHandler(async (req, res) => {
-  const token = req.cookies?.[REFRESH_COOKIE];
+  const token = req.cookies?.[REFRESH_COOKIE] || req.body?.refreshToken;
   if (!token) throw ApiError.unauthorized('No refresh token');
 
   const decoded = verifyRefreshToken(token); // throws -> 401 via error handler
@@ -106,12 +116,15 @@ const refresh = asyncHandler(async (req, res) => {
   }
 
   user.sessions.splice(idx, 1); // rotate: drop the used token
-  const accessToken = await issueSession(user, req, res);
-  res.json({ success: true, data: { accessToken, user } });
+  const { accessToken, refreshToken } = await issueSession(user, req, res);
+  res.json({
+    success: true,
+    data: { accessToken, user, ...(isMobile(req) ? { refreshToken } : {}) },
+  });
 });
 
 const logout = asyncHandler(async (req, res) => {
-  const token = req.cookies?.[REFRESH_COOKIE];
+  const token = req.cookies?.[REFRESH_COOKIE] || req.body?.refreshToken;
   res.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
   if (token) {
     try {
@@ -204,8 +217,12 @@ const changePassword = asyncHandler(async (req, res) => {
   }
   user.password = req.body.newPassword;
   user.sessions = []; // invalidate other devices
-  const accessToken = await issueSession(user, req, res); // keep this device signed in
-  res.json({ success: true, message: 'Password updated', data: { accessToken } });
+  const { accessToken, refreshToken } = await issueSession(user, req, res); // keep this device signed in
+  res.json({
+    success: true,
+    message: 'Password updated',
+    data: { accessToken, ...(isMobile(req) ? { refreshToken } : {}) },
+  });
 });
 
 const getMe = asyncHandler(async (req, res) => {
