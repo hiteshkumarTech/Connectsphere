@@ -15,6 +15,7 @@ import ChangeUsernameScreen from '../screens/ChangeUsernameScreen';
 import FollowListScreen from '../screens/FollowListScreen';
 import EditPostScreen from '../screens/EditPostScreen';
 import HashtagScreen from '../screens/HashtagScreen';
+import CreateReelScreen from '../screens/CreateReelScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,7 @@ export default function MainStack() {
       <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="ChangeUsername" component={ChangeUsernameScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="CreatePost" component={CreatePostScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="CreateReel" component={CreateReelScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="EditPost" component={EditPostScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Comments" component={CommentsScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'modal' }} />

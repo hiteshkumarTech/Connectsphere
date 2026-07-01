@@ -3,13 +3,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme';
 import FeedScreen from '../screens/FeedScreen';
 import SearchScreen from '../screens/SearchScreen';
+import ReelsScreen from '../screens/ReelsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationBell from '../components/NotificationBell';
 import ChatIcon from '../components/ChatIcon';
 
 const Tab = createBottomTabNavigator();
 
-const ICONS = { Home: 'home', Search: 'search', Profile: 'person' };
+const ICONS = { Home: 'home', Search: 'search', Reels: 'film', Profile: 'person' };
 
 export default function MainTabs() {
   return (
@@ -37,6 +38,7 @@ export default function MainTabs() {
         })}
       />
       <Tab.Screen name="Search" component={SearchScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Reels" component={ReelsScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
