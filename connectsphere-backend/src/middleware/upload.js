@@ -26,4 +26,17 @@ const uploadVideo = multer({
   limits: { fileSize: 60 * 1024 * 1024, files: 1 }, // 60MB, single video
 });
 
-module.exports = { uploadImage, uploadVideo };
+// Stories accept a single image OR video.
+const mediaFilter = (_req, file, cb) => {
+  if (/^image\/(jpe?g|png|webp|gif)$/.test(file.mimetype)) return cb(null, true);
+  if (/^video\/(mp4|quicktime|webm|x-m4v|3gpp)$/.test(file.mimetype)) return cb(null, true);
+  cb(ApiError.badRequest('Only images or videos are allowed'));
+};
+
+const uploadMedia = multer({
+  storage,
+  fileFilter: mediaFilter,
+  limits: { fileSize: 60 * 1024 * 1024, files: 1 }, // 60MB, single file
+});
+
+module.exports = { uploadImage, uploadVideo, uploadMedia };

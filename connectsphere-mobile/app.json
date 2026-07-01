@@ -1,21 +1,33 @@
 {
   "expo": {
-    "name": "connectsphere-mobile",
+    "name": "ConnectSphere",
     "slug": "connectsphere-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a0f"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hiteshkumar.connectsphere"
     },
     "android": {
+      "package": "com.hiteshkumar.connectsphere",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -24,6 +36,11 @@
       "expo-secure-store",
       "expo-audio",
       "expo-video"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9b9070a0-fc92-469c-a331-5e9c15cff4fc"
+      }
+    }
   }
 }

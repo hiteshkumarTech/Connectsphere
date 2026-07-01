@@ -9,5 +9,6 @@ router.use('/comments', require('./comment.routes'));
 router.use('/ai', require('./ai.routes'));
 router.use('/chat', require('./chat.routes'));
 router.use('/notifications', require('./notification.routes'));
+router.use('/stories', require('./story.routes'));
 
 module.exports = router;
