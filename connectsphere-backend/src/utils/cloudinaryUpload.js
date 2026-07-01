@@ -25,6 +25,30 @@ function uploadBuffer(buffer, folder = 'connectsphere') {
   });
 }
 
+/** Streams a video buffer to Cloudinary (resource_type video). */
+function uploadVideoBuffer(buffer, folder = 'connectsphere/reels') {
+  if (!config.cloudinary.configured) {
+    return Promise.reject(ApiError.badRequest('Video uploads are not configured on this server'));
+  }
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: 'video' },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({
+          url: result.secure_url,
+          publicId: result.public_id,
+          duration: result.duration || 0,
+          width: result.width,
+          height: result.height,
+          thumbnail: result.secure_url.replace(/\.(mp4|mov|webm|m4v|3gp)$/i, '.jpg'),
+        });
+      }
+    );
+    Readable.from(buffer).pipe(uploadStream);
+  });
+}
+
 function deleteImage(publicId) {
   if (!publicId || !config.cloudinary.configured) return Promise.resolve();
   return cloudinary.uploader.destroy(publicId).catch(() => {});
@@ -41,4 +65,4 @@ function signParams(paramsToSign) {
   return cloudinary.utils.api_sign_request(paramsToSign, config.cloudinary.apiSecret);
 }
 
-module.exports = { uploadBuffer, deleteImage, deleteVideo, signParams };
+module.exports = { uploadBuffer, uploadVideoBuffer, deleteImage, deleteVideo, signParams };

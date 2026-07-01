@@ -15,4 +15,15 @@ const uploadImage = multer({
   limits: { fileSize: 5 * 1024 * 1024, files: 10 }, // 5MB each, up to 10 (carousel)
 });
 
-module.exports = { uploadImage };
+const videoFilter = (_req, file, cb) => {
+  if (/^video\/(mp4|quicktime|webm|x-m4v|3gpp)$/.test(file.mimetype)) return cb(null, true);
+  cb(ApiError.badRequest('Only MP4, MOV, WEBM or M4V videos are allowed'));
+};
+
+const uploadVideo = multer({
+  storage,
+  fileFilter: videoFilter,
+  limits: { fileSize: 60 * 1024 * 1024, files: 1 }, // 60MB, single video
+});
+
+module.exports = { uploadImage, uploadVideo };

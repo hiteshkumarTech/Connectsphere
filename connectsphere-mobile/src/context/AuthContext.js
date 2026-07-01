@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import api, { tokenStore, setAccessToken, setAuthFailureHandler } from '../api/client';
 
 const AuthContext = createContext(null);
@@ -7,12 +8,14 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [booting, setBooting] = useState(true);
+  const queryClient = useQueryClient();
 
   // Restore an existing session when the app opens.
   useEffect(() => {
     setAuthFailureHandler(() => {
       setAccessToken(null);
       setUser(null);
+      queryClient.clear(); // drop cached data on forced logout
     });
 
     (async () => {
@@ -30,25 +33,34 @@ export function AuthProvider({ children }) {
         setBooting(false);
       }
     })();
-  }, []);
+  }, [queryClient]);
 
-  const login = useCallback(async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    const { user: u, accessToken, refreshToken } = data.data;
-    await tokenStore.set(accessToken, refreshToken);
-    setAccessToken(accessToken);
-    setUser(u);
-    return u;
-  }, []);
+  const login = useCallback(
+    async (email, password) => {
+      // Start the new account from a clean slate (no previous account's cached feed/likes).
+      queryClient.clear();
+      const { data } = await api.post('/auth/login', { email, password });
+      const { user: u, accessToken, refreshToken } = data.data;
+      await tokenStore.set(accessToken, refreshToken);
+      setAccessToken(accessToken);
+      setUser(u);
+      return u;
+    },
+    [queryClient]
+  );
 
-  const register = useCallback(async (payload) => {
-    const { data } = await api.post('/auth/register', payload);
-    const { user: u, accessToken, refreshToken } = data.data;
-    await tokenStore.set(accessToken, refreshToken);
-    setAccessToken(accessToken);
-    setUser(u);
-    return u;
-  }, []);
+  const register = useCallback(
+    async (payload) => {
+      queryClient.clear();
+      const { data } = await api.post('/auth/register', payload);
+      const { user: u, accessToken, refreshToken } = data.data;
+      await tokenStore.set(accessToken, refreshToken);
+      setAccessToken(accessToken);
+      setUser(u);
+      return u;
+    },
+    [queryClient]
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -60,7 +72,8 @@ export function AuthProvider({ children }) {
     await tokenStore.clear();
     setAccessToken(null);
     setUser(null);
-  }, []);
+    queryClient.clear(); // wipe the previous account's cached data
+  }, [queryClient]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, booting, login, register, logout }}>

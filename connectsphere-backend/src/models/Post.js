@@ -10,12 +10,25 @@ const mediaSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const videoSchema = new mongoose.Schema(
+  {
+    url: { type: String, required: true },
+    publicId: { type: String, required: true },
+    thumbnail: { type: String, default: '' },
+    duration: { type: Number, default: 0 },
+    width: Number,
+    height: Number,
+  },
+  { _id: false }
+);
+
 const postSchema = new mongoose.Schema(
   {
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    type: { type: String, enum: ['text', 'image'], default: 'text' },
+    type: { type: String, enum: ['text', 'image', 'reel'], default: 'text' },
     content: { type: String, default: '', maxlength: 5000 },
     images: { type: [mediaSchema], default: [] }, // 1..n supports single + carousel
+    video: { type: videoSchema, default: null }, // populated for reels
 
     hashtags: { type: [String], default: [], index: true },
     mentions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

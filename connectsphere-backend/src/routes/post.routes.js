@@ -5,7 +5,7 @@ const validate = require('../middleware/validate');
 const v = require('../validators/post.validator');
 const commentV = require('../validators/comment.validator');
 const { protect, optionalAuth } = require('../middleware/auth');
-const { uploadImage } = require('../middleware/upload');
+const { uploadImage, uploadVideo } = require('../middleware/upload');
 
 // Literal / nested routes before /:id.
 router.get('/feed', protect, ctrl.getFeed);
@@ -13,9 +13,11 @@ router.get('/explore', optionalAuth, ctrl.getExplore);
 router.get('/hashtag/:tag', optionalAuth, ctrl.getByHashtag);
 router.get('/search', optionalAuth, ctrl.searchPosts);
 router.get('/hashtags/trending', optionalAuth, ctrl.getTrendingHashtags);
+router.get('/reels', optionalAuth, ctrl.getReels);
 router.get('/user/:username', optionalAuth, ctrl.getUserPosts);
 
 router.post('/', protect, uploadImage.array('images', 10), validate(v.createPost), ctrl.createPost);
+router.post('/reels', protect, uploadVideo.single('video'), ctrl.createReel);
 
 // Post-scoped comments.
 router.get('/:postId/comments', optionalAuth, commentCtrl.getComments);

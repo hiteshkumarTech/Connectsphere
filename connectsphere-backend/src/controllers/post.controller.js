@@ -9,7 +9,7 @@ const Notification = require('../models/Notification');
 const ApiError = require('../utils/ApiError');
 const asyncHandler = require('../utils/asyncHandler');
 const { getPagination, meta } = require('../utils/pagination');
-const { uploadBuffer, deleteImage } = require('../utils/cloudinaryUpload');
+const { uploadBuffer, uploadVideoBuffer, deleteImage } = require('../utils/cloudinaryUpload');
 const { extractHashtags, extractMentionUsernames } = require('../utils/text');
 const { notify } = require('../services/notification.service');
 const { moderateContent } = require('../services/ai.service');
@@ -114,8 +114,8 @@ const getFeed = asyncHandler(async (req, res) => {
 
   // New users with an empty graph see recent public posts instead of a blank feed.
   const filter = followingIds.length
-    ? { author: { $in: [...followingIds, new mongoose.Types.ObjectId(req.user.id)] } }
-    : { visibility: 'public' };
+    ? { author: { $in: [...followingIds, new mongoose.Types.ObjectId(req.user.id)] }, type: { $ne: 'reel' } }
+    : { visibility: 'public', type: { $ne: 'reel' } };
 
   const [posts, total] = await Promise.all([
     Post.find(filter)
@@ -133,7 +133,7 @@ const getFeed = asyncHandler(async (req, res) => {
 
 const getExplore = asyncHandler(async (req, res) => {
   const { page, limit, skip } = getPagination(req);
-  const filter = { visibility: 'public' };
+  const filter = { visibility: 'public', type: { $ne: 'reel' } };
   const [posts, total] = await Promise.all([
     Post.find(filter)
       .sort({ createdAt: -1 })
@@ -378,8 +378,74 @@ const sharePost = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { sharesCount: post.sharesCount } });
 });
 
+const createReel = asyncHandler(async (req, res) => {
+  const content = (req.body.content || '').trim();
+  const visibility = req.body.visibility || 'public';
+  if (!req.file) throw ApiError.badRequest('A reel needs a video');
+
+  const video = await uploadVideoBuffer(req.file.buffer, 'connectsphere/reels');
+
+  const hashtags = extractHashtags(content);
+  const mentions = await resolveMentions(content);
+
+  let moderation = { status: 'clean', reason: '' };
+  if (config.ai.moderationOnPost && content) {
+    try {
+      const result = await moderateContent(content);
+      if (result.flagged) {
+        moderation = { status: 'flagged', reason: result.reason || 'Flagged by AI moderation' };
+      }
+    } catch (_e) {
+      /* never block posting because the AI provider failed */
+    }
+  }
+
+  const post = await Post.create({
+    author: req.user.id,
+    type: 'reel',
+    content,
+    video,
+    hashtags,
+    mentions,
+    visibility,
+    moderation,
+  });
+
+  await User.findByIdAndUpdate(req.user.id, { $inc: { postsCount: 1 } });
+
+  await Promise.all(
+    mentions
+      .filter((id) => String(id) !== req.user.id)
+      .map((id) => notify({ recipient: id, sender: req.user.id, type: 'mention', post: post._id }))
+  );
+
+  const populated = await post.populate('author', AUTHOR_FIELDS);
+  const obj = populated.toObject();
+  obj.myReaction = null;
+  obj.saved = false;
+  res.status(201).json({ success: true, message: 'Reel created', data: { post: obj } });
+});
+
+const getReels = asyncHandler(async (req, res) => {
+  const { page, limit, skip } = getPagination(req);
+  const filter = { type: 'reel', visibility: 'public' };
+  const [posts, total] = await Promise.all([
+    Post.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('author', AUTHOR_FIELDS)
+      .lean(),
+    Post.countDocuments(filter),
+  ]);
+  await attachMyReactions(posts, req.user?.id);
+  res.json({ success: true, data: { posts, pagination: meta(page, limit, total) } });
+});
+
 module.exports = {
   createPost,
+  createReel,
+  getReels,
   getFeed,
   getExplore,
   getPost,
